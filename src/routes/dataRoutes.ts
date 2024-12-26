@@ -5,13 +5,12 @@ import { authenticateToken, AuthenticatedRequest } from '../middlewares/authenti
 const router = Router();
 
 // Create: POST (Добавление новой записи)
-// @ts-ignore
-router.post('/add', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/add', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const { name, age } = req.body;
 
         if (!name || !age) {
-            return res.status(400).json({ error: 'Имя и возраст обязательны' });
+            res.status(400).json({ error: 'Имя и возраст обязательны' });
         }
 
         const newData = new SomeData({ name, age });
@@ -25,8 +24,7 @@ router.post('/add', authenticateToken, async (req: AuthenticatedRequest, res: Re
 });
 
 // Read: GET (Получение всех данных)
-// @ts-ignore
-router.get('/all', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/all', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const allData = await SomeData.find();
         res.status(200).json(allData);
@@ -37,14 +35,13 @@ router.get('/all', authenticateToken, async (req: AuthenticatedRequest, res: Res
 });
 
 // Read: GET (Получение данных по ID)
-// @ts-ignore
-router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
         const data = await SomeData.findById(id);
 
         if (!data) {
-            return res.status(404).json({ error: 'Данные не найдены' });
+            res.status(404).json({ error: 'Данные не найдены' });// return;
         }
 
         res.status(200).json(data);
@@ -55,14 +52,13 @@ router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Res
 });
 
 // Update: PUT (Обновление данных)
-// @ts-ignore
-router.put('/update/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.put('/update/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
         const { name, age } = req.body;
 
         if (!name && !age) {
-            return res.status(400).json({ error: 'Не указаны данные для обновления' });
+            res.status(400).json({ error: 'Не указаны данные для обновления' });
         }
 
         const updatedData = await SomeData.findByIdAndUpdate(
@@ -72,7 +68,7 @@ router.put('/update/:id', authenticateToken, async (req: AuthenticatedRequest, r
         );
 
         if (!updatedData) {
-            return res.status(404).json({ error: 'Данные не найдены для обновления' });
+            res.status(404).json({ error: 'Данные не найдены для обновления' });
         }
 
         res.status(200).json({ message: 'Данные обновлены', data: updatedData });
@@ -83,15 +79,15 @@ router.put('/update/:id', authenticateToken, async (req: AuthenticatedRequest, r
 });
 
 // Delete: DELETE (Удаление данных)
-// @ts-ignore
-router.delete('/delete/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/delete/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
 
         const deletedData = await SomeData.findByIdAndDelete(id);
 
         if (!deletedData) {
-            return res.status(404).json({ error: 'Данные не найдены для удаления' });
+            res.status(404).json({ error: 'Данные не найдены для удаления' });
+            return;
         }
 
         res.status(200).json({ message: 'Данные удалены', data: deletedData });
