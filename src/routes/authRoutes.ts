@@ -8,18 +8,20 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 
 router.post(
-    '/register',// @ts-ignore
-    async (req: Request<{}, {}, { username: string; password: string }>, res: Response) => {
+    '/register',
+    async (req: Request<{}, {}, { username: string; password: string }>, res: Response): Promise<void> => {
         try {
             const { username, password } = req.body;
 
             if (!username || !password) {
-                return res.status(400).json({ error: 'Введите логин и пароль' });
+                res.status(400).json({ error: 'Введите логин и пароль' });
+                return;
             }
 
             const existingUser = await User.findOne({ username });
             if (existingUser) {
-                return res.status(400).json({ error: 'Пользователь с таким именем уже существует' });
+                res.status(400).json({ error: 'Пользователь с таким именем уже существует' });
+                return;
             }
 
             const hashedPassword = await bcryptjs.hash(password, 10);
@@ -35,19 +37,21 @@ router.post(
 );
 
 router.post(
-    '/login',// @ts-ignore
-    async (req: Request<{}, {}, { username: string; password: string }>, res: Response) => {
+    '/login',
+    async (req: Request<{}, {}, { username: string; password: string }>, res: Response) : Promise<void> => {
         try {
             const { username, password } = req.body;
 
             const user = await User.findOne({ username });
             if (!user) {
-                return res.status(400).json({ error: 'Неверное имя пользователя или пароль' });
+                res.status(400).json({ error: 'Неверное имя пользователя или пароль' });
+                return;
             }
 
             const isPasswordValid = await bcryptjs.compare(password, user.password);
             if (!isPasswordValid) {
-                return res.status(400).json({ error: 'Неверное имя пользователя или пароль' });
+                res.status(400).json({ error: 'Неверное имя пользователя или пароль' });
+                return;
             }
 
             const token = jwt.sign(
